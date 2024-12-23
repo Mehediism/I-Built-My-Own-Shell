@@ -13,6 +13,13 @@ int main() {
         if (input == "exit 0") 
             return 0;
             
+        // Check if input starts with "echo "
+        if (input.substr(0, 5) == "echo ") {
+            // Print everything after "echo "
+            std::cout << input.substr(5) << std::endl;
+            continue;
+        }
+            
         std::cout << input << ": command not found" << std::endl;
     }
     
