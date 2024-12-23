@@ -1,40 +1,75 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <filesystem>
+#include <vector>
 
-bool is_builtin(const std::string& cmd) {
+using namespace std;
+namespace fs = filesystem;
+
+bool is_builtin(const string& cmd) {
     return cmd == "echo" || cmd == "exit" || cmd == "type";
 }
 
+// Split PATH into directories
+vector<string> get_path_dirs() {
+    vector<string> dirs;
+    string path = getenv("PATH");
+    size_t pos = 0;
+    while ((pos = path.find(':')) != string::npos) {
+        dirs.push_back(path.substr(0, pos));
+        path.erase(0, pos + 1);
+    }
+    dirs.push_back(path);
+    return dirs;
+}
+
+// Find executable in PATH
+string find_executable(const string& cmd) {
+    for (const auto& dir : get_path_dirs()) {
+        string full_path = dir + "/" + cmd;
+        if (fs::exists(full_path)) {
+            return full_path;
+        }
+    }
+    return "";
+}
+
 int main() {
-    std::cout << std::unitbuf;
-    std::cerr << std::unitbuf;
+    cout << unitbuf;
+    cerr << unitbuf;
     
     while(true) {
-        std::cout << "$ ";
-        std::string input;
-        std::getline(std::cin, input);
+        cout << "$ ";
+        string input;
+        getline(cin, input);
 
         if (input == "exit 0") 
             return 0;
             
         // Check if input starts with "type "
         if (input.substr(0, 5) == "type ") {
-            std::string cmd = input.substr(5);  // Get the command after "type "
+            string cmd = input.substr(5);
             if (is_builtin(cmd)) {
-                std::cout << cmd << " is a shell builtin" << std::endl;
+                cout << cmd << " is a shell builtin" << endl;
             } else {
-                std::cout << cmd << ": not found" << std::endl;
+                string exe_path = find_executable(cmd);
+                if (!exe_path.empty()) {
+                    cout << cmd << " is " << exe_path << endl;
+                } else {
+                    cout << cmd << ": not found" << endl;
+                }
             }
             continue;
         }
             
         // Check if input starts with "echo "
         if (input.substr(0, 5) == "echo ") {
-            std::cout << input.substr(5) << std::endl;
+            cout << input.substr(5) << endl;
             continue;
         }
             
-        std::cout << input << ": command not found" << std::endl;
+        cout << input << ": command not found" << endl;
     }
     
     return 0;
