@@ -12,5 +12,13 @@ int main() {
     std::getline(std::cin, input);
     std::cout << input << ": command not found" << std::endl;
     
+    //creating REPL
+    while(true) {
+    std::cout << "$ ";
+    std::string input;
+    std::getline(std::cin, input);
+    std::cout << input << ": command not found" << std::endl;
+  }
+    
     return 0;
 }
