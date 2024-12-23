@@ -22,8 +22,10 @@ int main() {
             std::string cmd = input.substr(5);  // Get the command after "type "
             if (is_builtin(cmd)) {
                 std::cout << cmd << " is a shell builtin" << std::endl;
-                continue;
+            } else {
+                std::cout << cmd << ": not found" << std::endl;
             }
+            continue;
         }
             
         // Check if input starts with "echo "
