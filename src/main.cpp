@@ -3,10 +3,12 @@
 #include <cstdlib>
 #include <filesystem>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 namespace fs = filesystem;
 
+// Check if a command is a shell builtin
 bool is_builtin(const string& cmd) {
     return cmd == "echo" || cmd == "exit" || cmd == "type";
 }
@@ -28,7 +30,7 @@ vector<string> get_path_dirs() {
 string find_executable(const string& cmd) {
     for (const auto& dir : get_path_dirs()) {
         string full_path = dir + "/" + cmd;
-        if (fs::exists(full_path)) {
+        if (fs::exists(full_path) && fs::is_regular_file(full_path)) {
             return full_path;
         }
     }
@@ -68,8 +70,17 @@ int main() {
             cout << input.substr(5) << endl;
             continue;
         }
-            
-        cout << input << ": command not found" << endl;
+        
+        // Execute external programs
+        stringstream ss(input);
+        string program;
+        ss >> program;
+        string exe_path = find_executable(program);
+        if (!exe_path.empty()) {
+            system(input.c_str());
+        } else {
+            cout << input << ": command not found" << endl;
+        }
     }
     
     return 0;
